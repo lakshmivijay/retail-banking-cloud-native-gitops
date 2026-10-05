@@ -1,0 +1,5 @@
+cd C:\retail-banking-cloud-native
+dir
+Move-Item -Path "C:\retail-banking-cloud-native\retail-banking-cloud-native\*" -Destination "C:\retail-banking-cloud-native\" -Force
+Remove-Item -Path "C:\retail-banking-cloud-native\retail-banking-cloud-native" -Recurse -Force
+dir

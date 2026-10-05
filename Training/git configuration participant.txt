@@ -1,0 +1,26 @@
+cd C:\retail-banking-cloud-native
+
+git init
+
+git config --local user.name "Participant X"
+git config --local user.email "participantx@gmail.com"
+
+git status
+
+git add .
+
+git status
+
+git commit -m "Initial working retail banking application"
+
+git branch -M main
+
+git remote add origin https://github.com/lakshmivijay/cloud-native-training-sept.git
+
+git remote -v
+
+git checkout -b participant-x
+
+git push -u origin participant-x
+
+git status
