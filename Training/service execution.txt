@@ -1,0 +1,122 @@
+execution
+docker run -d \
+  --name postgres \
+  --network banking-network \
+  -p 5432:5432 \
+  -v postgres-data:/var/lib/postgresql/data \
+  -v /mnt/c/retail-banking-cloud-native/docker/postgres/init:/docker-entrypoint-initdb.d \
+  -e POSTGRES_DB=customer_db \
+  -e POSTGRES_USER=banking \
+  -e POSTGRES_PASSWORD=banking \
+  postgres:16
+
+2 customer-service
+
+docker run -d \
+--name customer-service \
+--network banking-network \
+-p 8081:8081 \
+-e DB_URL=jdbc:postgresql://postgres:5432/customer_db \
+-e DB_USERNAME=banking \
+-e DB_PASSWORD=banking \
+customer-service
+
+
+3. account-service
+docker run -d \
+--name account-service \
+--network banking-network \
+-p 8082:8082 \
+-e DB_URL=jdbc:postgresql://postgres:5432/account_db \
+-e DB_USERNAME=banking \
+-e DB_PASSWORD=banking \
+-e CUSTOMER_SERVICE_URL=http://customer-service:8081 \
+account-service
+
+4. frontend
+docker run -d \
+--name frontend \
+--network banking-network \
+-p 5173:80 \
+frontend
+
+
+
+
+
+
+
+
+
+
+docker-compose file
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: banking
+      POSTGRES_PASSWORD: banking
+      POSTGRES_DB: customer_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - banking-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U banking"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  customer-service:
+    build: ./customer-service
+    container_name: customer-service
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/customer_db
+      DB_USERNAME: banking
+      DB_PASSWORD: banking
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - banking-network
+    ports:
+      - "8081:8081"
+
+  account-service:
+    build: ./account-service
+    container_name: account-service
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/account_db
+      DB_USERNAME: banking
+      DB_PASSWORD: banking
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - banking-network
+    ports:
+      - "8082:8082"
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - customer-service
+      - account-service
+    networks:
+      - banking-network
+    ports:
+      - "5173:80"
+
+networks:
+  banking-network:
+    driver: bridge
+
+volumes:
+  postgres-data:

@@ -1,0 +1,74 @@
+ pwd
+  734  cls
+  735  clear
+  736  docker
+  737  docker --version
+  738  docker network ls
+  739  docker network create banking-network
+  740  docker network ls
+  741  docker images
+  742  docker pull nginx:alpine
+  743  docker images
+  744  docker run -d --name -nginx --network banking-network nginx:alpine
+  745  docker run -d --name -nginx --network banking-network nginx
+  746  docker run -d --name -nginx --network banking-network nginx:alpine
+  747  docker run -d --name -nginx --network banking-network nginx
+  748  docker run -d --name nginx --network banking-network nginx
+  749  docker ps
+  750  docker network inspect-network
+  751  docker network inspect banking-network
+  752  docker pull postgres:16
+  753  docker images
+  754  docker rm -f nginx
+  755  docker images
+  756  docker volume create postgres-data
+  757  docker volume ls
+  758  docker volume inspect postgres-data
+  759  docker run -d ^
+  760  --name postgres ^
+  761  --network banking-network ^
+  762  -p 5432:5432 ^
+  763  -v postgres-data:/var/lib/postgresql/data ^
+  764  -e POSTGRES_DB=customer_db ^
+  765  -e POSTGRES_USER=banking ^
+  766  -e POSTGRES_PASSWORD=banking ^
+  767  postgres:16
+  768  docker run -d   --name postgres   --network banking-network   -p 5432:5432   -v postgres-data:/var/lib/postgresql/data   -v /mnt/c/retail-banking-cloud-native/docker/postgres/init:/docker-entrypoint-initdb.d   -e POSTGRES_DB=customer_db   -e POSTGRES_USER=banking   -e POSTGRES_PASSWORD=banking   postgres:16
+  769  docker ps
+  770  docker logs postgres
+  771  docker exec -it postgres psql -U banking -d customer_db
+  772  cat /mnt/f/retail-banking-cloud-native/docker/postgres/init/01-create-databases.sql
+  773  docker stop postgres
+  774  docker rm postgres
+  775  docker volume rm postgres-data
+  776  docker volume create postgres-data
+  777  docker run -d   --name postgres   --network banking-network   -p 5432:5432   -v postgres-data:/var/lib/postgresql/data   -v /mnt/f/retail-banking-cloud-native/docker/postgres/init:/docker-entrypoint-initdb.d   -e POSTGRES_DB=customer_db   -e POSTGRES_USER=banking   -e POSTGRES_PASSWORD=banking   postgres:16
+  778  docker logs postgres
+  779  docker exec -it postgres psql -U banking -d customer_db
+  780  ls
+  781  cd backend/
+  782  cd customer-service/
+  783  docker build -t customer-service:1.0
+  784  ls
+  785  docker build -t customer-service .
+  786  docker images
+  787  docker run -d --name customer-service --network banking-network -p 8081:8081 ^
+  788  -e DB_URL=jdbc:postgresql://postgres:5432/customer_db -e DB_USERNAME=banking -e DB_PASSWORD=banking customer-service
+  789  docker run -d --name customer-service --network banking-network -p 8081:8081 -e DB_URL=jdbc:postgresql://postgres:5432/customer_db -e DB_USERNAME=banking -e DB_PASSWORD=banking customer-service
+  790  docker ps
+  791  docker logs customer-service
+  792  cd ..
+  793  cd account-service/
+  794  docker build -t account-service
+  795  docker build -t account-service .
+  796  docker images
+  797  docker ps
+  798  docker logs account-service
+  799  docker run -d --name account-service --network banking-network -p 8082:8082 -e DB_URL=jdbc:postgresql://postgres:5432/account_db -e DB_USERNAME=banking -e DB_PASSWORD=banking -e CUSTOMER_SERVICE_URL=http://customer-service:8081 account-service
+  800  docker ps
+  801  cd ..
+  802  cd frontend/
+  803  docker build -t frontend .
+  804  docker images
+  805  docker run -d --name frontend --network banking-network -p 5173:80 frontend
+  806  history
